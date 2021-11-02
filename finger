@@ -1,0 +1,256 @@
+import spacy
+from collections import Counter
+import collections
+import matplotlib.pyplot as plt
+
+
+nlp = spacy.load("en_core_web_sm")
+
+# task 2.2
+reader = open("Traning/RFC/Bicycles.xml", "r")
+txt = reader.read()
+doc = nlp(txt)
+
+
+# task 2.3
+
+# POS
+def POS():
+    list = []
+
+    for token in doc:
+        list.append(token.pos_)
+
+    c = dict(Counter(list))
+    print(c)
+
+POS()
+
+# [SpatialEntities, Places, Motions, Locations, Signals, QsLinks, OLinks]
+
+def two():
+    counter_1 = 0
+    counter_2 = 0
+    counter_3 = 0
+    counter_4 = 0
+    counter_5 = 0
+    counter_6 = 0
+    counter_7 = 0
+    x = txt.splitlines()
+    for i in x:
+        if "SPATIAL_ENTITY" in i:
+            counter_1 += 1
+        if "MOTION" in i:
+            counter_2 += 1
+        if "QSLINK" in i:
+            counter_3 += 1
+        if "PLACE" in i:
+            counter_4 += 1
+        if "LOCATION" in i:
+            counter_5 += 1
+        if "SIGNAL" in i and "MOTION_SIGNAL" not in i:
+            counter_6 += 1
+        if "OLINK" in i:
+            counter_7 += 1
+
+    print([["SPATIAL_ENTITY", counter_1],
+            ["MOTION", counter_2],
+            ["QSLINK", counter_3],
+            ["PLACE", counter_4],
+            ["Location", counter_5],
+            ["Signals", counter_6],
+            ["OLink", counter_7]])
+
+
+
+def qslinks():
+    x = txt.splitlines()
+    relType = []
+    for i in range(len(x)):
+        if "QSLINK" in x[i]:
+            relType.append(x[i])
+    #print(relType)
+
+    relWords = []
+    for i in range(len(relType)):
+        relWords.append(relType[i].split())
+    #print(relWords)
+
+    type = []
+    for i in relWords:
+        for j in range(len(i)):
+            if 'relType="' in i[j]:
+                type.append(i[j])
+    #print(type)
+    final = []
+    for k in type:
+        k = k.replace('relType="', '')
+        k = k.replace('"', '')
+        final.append(k)
+    print(Counter(final))
+two()
+
+def prep():
+    x = txt.splitlines()
+    QS = []
+    OL = []
+    Space_S = []
+    for i in range(len(x)):
+        if "QSLINK" in x[i]:
+            QS.append(x[i])
+    # print(QS)
+
+    for i in range(len(x)):
+        if "OLINK" in x[i]:
+            OL.append(x[i])
+    # print(OL)
+
+    for i in range(len(x)):
+        if "SPATIAL_SIGNAL" in x[i]:
+            Space_S.append(x[i])
+
+    Space_S1 = []
+    for i in range(len(Space_S)):
+        Space_S1.append(Space_S[i].split())
+
+    temp_id = []
+    temp_tx = []
+
+    zusammen = []
+    for i in Space_S1:
+        for j in range(len(i)):
+            if 'id="' in i[j]:
+                temp_id.append(i[j])
+            if 'text="' in i[j]:
+                temp_tx.append(i[j])
+    final_id = []
+    for i in temp_id:
+        if 'id="' in i:
+            i = i.replace('id="', '')
+            i = i.replace('"', '')
+            final_id.append(i)
+    final_tx = []
+    for i in temp_tx:
+        if 'text="' in i:
+            i = i.replace('text="', '')
+            i = i.replace('"', '')
+            final_tx.append(i)
+
+    for i in range(len(temp_id)):
+        zusammen.append((final_id[i], final_tx[i]))
+
+    print(zusammen)
+
+
+    # QS #
+
+    QS_2 = []
+    for i in range(len(QS)):
+        QS_2.append(QS[i].split())
+    # print(QS_2)
+
+    Trigger = []
+    for i in QS_2:
+        for j in range(len(i)):
+            if 'trigger="' in i[j]:
+                Trigger.append(i[j])
+
+    final_qs = []
+    for k in Trigger:
+        k = k.replace('trigger="', '')
+        k = k.replace('"', '')
+        final_qs.append(k)
+
+    # print(final_qs)
+
+    # print(Trigger)
+
+    # OL #
+
+    OL_2 = []
+    for i in range(len(OL)):
+        OL_2.append(OL[i].split())
+    # print(OL_2)
+
+    Trigger_1 = []
+    for i in OL_2:
+        for j in range(len(i)):
+            if 'trigger="' in i[j]:
+                Trigger_1.append(i[j])
+    final_t = []
+    for k in Trigger_1:
+        k = k.replace('trigger="', '')
+        k = k.replace('"', '')
+        final_t.append(k)
+
+    # print(Trigger_1)
+    # print(final_t)
+
+    # adding two lists
+    list_final = final_qs + final_t
+    # print(list_final)
+
+prep()
+def Motion():
+    x = txt.splitlines()
+    motion = []
+    motion_1 = []
+    for i in range(len(x)):
+        if "<MOTION" in x[i]:
+            motion.append(x[i])
+    #print(motion)
+
+    for i in range(len(motion)):
+        motion_1.append(motion[i].split())
+    #print(motion_1)
+
+    text = []
+    for i in motion_1:
+        for j in range(len(i)):
+            if 'text="' in i[j]:
+                text.append(i[j])
+
+    final_txt = []
+    for k in text:
+        k = k.replace('text="', '')
+        k = k.replace('"', '')
+        final_txt.append(k)
+
+    #print(final_txt)
+
+
+    final_counter = collections.Counter(final_txt)
+    most_common = final_counter.most_common(5)
+    print(most_common)
+
+Motion()
+
+
+def graph():
+    x = txt.splitlines()
+    g = []
+    h = []
+    t = []
+    for i in x:
+        if "<" not in i:
+            g.append(i.split("."))
+    g = list(filter(None, g))
+
+    for i in range(len(g)):
+        h.append(g[i][0].split())
+    h = list(filter(None, h))
+
+    for i in h:
+        t.append(len(i))
+
+    #print(t)
+
+    final_counter = collections.Counter(t)
+    most_common = final_counter.most_common()
+    print(most_common)
+    #print(h)
+    plt.bar(*zip(*most_common))
+    plt.xlabel("Anzahl der Wörter")
+    plt.ylabel("Häufigkeit")
+    plt.show()
+graph()
